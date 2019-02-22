@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 public class DP {
@@ -13,6 +15,15 @@ public class DP {
 		int[] coins = {1, 2, 5};
 		System.out.println("Min. coins to make 11: " + dp.coinChangeMinCoins(coins, 11));
 		System.out.println("Min. coins to make 11 (method 02): " + dp.coinChangeMinCoins02(coins, 11));
+		
+		int[] nums = {1, 2, 5};
+		System.out.println("Combinations to make 3 (expected = 3): " + dp.combinationsSumTopDown(nums, 3));
+		System.out.println("Combinations to make 3 (expected = 3): " + dp.combinationsSumBottomUp(nums, 3));
+		
+		System.out.println("Possible combinations to make 3 (expected = 2): " + dp.possibleCoinCombinations(nums, 3));
+		
+		nums = new int[]{2, 4, 6};
+		System.out.println("Different ways to make 6 (expected = 2): " + dp.targetSum(nums, 6));
 	}
 
 	/**
@@ -148,4 +159,116 @@ public class DP {
 		return false;
 	}
 	
+	/**
+	 * Given coins of different denominations, find the different ways you can make
+	 * up the target sum. You have unlimited coins of each denomination.
+	 * @param coins
+	 * @param sum
+	 * @return
+	 */
+	public int possibleCoinCombinations(int[] coins, int target) {
+		int[] dp = new int[target+1];
+		Arrays.fill(dp, 0);
+		dp[0] = 1;
+		
+		for(int coin : coins) {
+			for(int i = 0; i <= target; i++) {
+				if(i+coin <= target)
+					dp[i+coin] = dp[i] + dp[i+coin];
+			}
+		}
+		
+		return dp[target];
+	}
+	
+	/**
+	 * Target Sum - Leetcode 494
+	 * 
+	 * You are given a list of non-negative integers, a1, a2, ..., an, 
+	 * and a target, S. Now you have 2 symbols + and -. For each integer, 
+	 * you should choose one from + and - as its new symbol. 
+	 * 
+	 * Find out how many ways to assign symbols to make sum of integers equal to target S.
+	 * 
+	 * This question can be rephrased as split the original list into two sublists such
+	 * that one sublist contains all positive elements and the other contains all negative
+	 * elements such that their combined sum equals target.
+	 * 
+	 * sum(P) - sum(N) = target
+	 * sum(P) - sum(N) + sum(P) + sum(N) = target + sum(P) + sum(N)
+	 * 2 * sum(P) = target + sum(list)
+	 * sum(P) = (target + sum(list))/2
+	 * 
+	 * The problem now becomes find the number of ways to sum up to sum(P)
+	 */
+	public int targetSum(int[] nums, int target) {
+		int sum = 0;
+		for(int num : nums) {
+			sum = sum + num;
+		}
+		return ((target + sum) % 2 > 0 || sum < 0) ? 0 : targetSumWays(nums, target); 
+	}
+	
+	public int targetSumWays(int[] nums, int target) {
+		int[] dp = new int[target + 1];
+		dp[0] = 1;
+		
+		for(int num : nums) {
+			for(int i = target; i >= num; i--) { // automatically takes care of when num > target
+				System.out.println("i-num = " + (i-num));
+				dp[i] = dp[i] + dp[i-num];
+			}
+		}
+		return dp[target];
+	}
+	
+	/**
+	 * Given an array of nums, find the different ways you can sum up to a
+	 * target sum assuming you can only use an entry once and no duplicates
+	 * are present in input
+	 */
+	public int targetSumWaysNoDuplicates(int[] nums, int target) {
+		Arrays.sort(nums); // important considering the for loop limit
+		int[] dp = new int[target+1];
+		dp[0] = 1;
+		
+		for(int num : nums) {
+			for(int i = 0; i < Math.min(dp.length, num); i++) {
+				if(dp[i] != 0) {
+					if(i+num < dp.length) dp[i + num] = 1 + dp[i + num];
+				}
+			}
+		}
+		return dp[target];
+	}
+	
+	/**
+	 * Minmum Refueling Stops (Leetcode 871)
+	 * 
+	 * Find the minimum number of stops a car would have to make to refuel
+	 * to reach a given target distance. Assume the car uses 1 unit of gas 
+	 * for 1 unit of distance. You are given an array of stations where
+	 * station[i][0] is the distance of the station from start and station[i][1]
+	 * is the amount of gas in the station.
+	 * 
+	 * At each station the car can transfer all the gas in the station to itself
+	 */
+	public int minimumRefuelingStops(int target, int startFuel, int[][] stations) {
+		long[] dp = new long[stations.length + 1];
+		dp[0] = startFuel;
+		
+		for(int i = 0; i < stations.length; i++) {
+			// you want to iterate backwards to go back to the earliest 
+			// position from where you can reach this station
+			for(int t = i; t >= 0 && dp[t] >= stations[i][0]; t--) { // if dp[t] >= s[i][0] -> we can refuel
+				dp[t+1] = Math.max(dp[t+1], dp[t] + stations[i][1]);
+			}			
+		}
+		
+		for(int i = 0; i < dp.length; i++) {
+			if(dp[i] >= target) return i; // minimum number of stops
+		}
+		return -1;
+	}
+
 }

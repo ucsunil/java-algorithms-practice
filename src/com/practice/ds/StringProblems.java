@@ -133,5 +133,13 @@ public class StringProblems {
 		return input.substring(start, start+longest);
 	}
 	
+	/**
+	 * Compressed string
+	 * 
+	 * Given a string compress it
+	 * AAAbbbc -> A3B3c1
+	 * Aab -> A1a1b1
+	 */
+	
 
 }

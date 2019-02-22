@@ -56,7 +56,7 @@ public class ParanthesesProblems {
 	 */
 	public List<String> generateParanthesesPairs(int n) {
 		List<String> results = new ArrayList<String>();
-		generateParanthesesPairs(results, 0, "", 0, 0);
+		generateParanthesesPairs(results, n, "", 0, 0);
 		return results;
 	}
 	

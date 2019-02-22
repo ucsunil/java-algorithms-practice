@@ -312,5 +312,18 @@ public class BinaryTrees {
 		
 		return isBinaryTreeSymmetric(left.left, right.right) && isBinaryTreeSymmetric(left.right, right.left);
 	}
+	
+	/**
+	 * Given a binary tree, find if it is a BST
+	 */
+	public boolean isBST(Node root) {
+		return isBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
+	}
+	
+	public boolean isBST(Node root, long min, long max) {
+		if(root == null) return true;
+		if(root.value < min || root.value > max) return false;
+		return isBST(root.left, min, root.value) && isBST(root.right, root.value, max);
+	}
 
 }
